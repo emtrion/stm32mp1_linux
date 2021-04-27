@@ -83,9 +83,16 @@
 		};
 	};
 
-	led {
+	led: gpio_leds {
 		compatible = "gpio-leds";
-		green {
+		led0 {
+			label = "panic";
+			gpios = <&gpioa 13 GPIO_ACTIVE_LOW>;
+			linux,default-trigger = "none";
+			default-state = "off";
+			panic-indicator;
+		};
+		led1 {
 			label = "heartbeat";
 			gpios = <&gpioa 14 GPIO_ACTIVE_LOW>;
 			linux,default-trigger = "heartbeat";
