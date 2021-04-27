@@ -41,19 +41,19 @@
 		#size-cells = <1>;
 		ranges;
 
-		retram: retram@0x38000000 {
+		retram: retram@38000000 {
 			compatible = "shared-dma-pool";
 			reg = <0x38000000 0x10000>;
 			no-map;
 		};
 
-		mcuram: mcuram@0x30000000 {
+		mcuram: mcuram@30000000 {
 			compatible = "shared-dma-pool";
 			reg = <0x30000000 0x40000>;
 			no-map;
 		};
 
-		mcuram2: mcuram2@0x10000000 {
+		mcuram2: mcuram2@10000000 {
 			compatible = "shared-dma-pool";
 			reg = <0x10000000 0x40000>;
 			no-map;
@@ -307,7 +307,7 @@
 			 <&rcc ETHSTP>,
 			 <&rcc ETHCK_K>,
 			 <&rcc SYSCFG>;
-	st,eth-ref-clk-sel="true";
+	st,eth-ref-clk-sel;
 
 	mdio0 {
 		#address-cells = <1>;
@@ -459,24 +459,24 @@
 				regulator-over-current-protection;
 			};
 
-			 bst_out: boost {
+			bst_out: boost {
 				regulator-name = "bst_out";
 				regulator-always-on;
 				interrupts = <IT_OCP_BOOST 0>;
-			 };
+			};
 
 			vbus_otg: pwr_sw1 {
 				regulator-name = "vbus_otg";
 				interrupts = <IT_OCP_OTG 0>;
 				regulator-active-discharge;
-			 };
+			};
 
 			vbus_usbh: pwr_sw2 {
 				regulator-name = "usbh_vbus";
 				interrupts = <IT_OCP_SWOUT 0>;
 				regulator-always-on;
 				regulator-boot-on;
-			 };
+			};
 		};
 
 		onkey {
