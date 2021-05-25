@@ -101,22 +101,7 @@
 	};
 
 	sound: sound {
-		compatible = "audio-graph-card";
-		label = "Supercalifragilisticexpialigetisch";
-		dais = <&dfsdm0_port>;
-		status = "okay";
-	};
-
-	dmic0: dmic-0 {
-		compatible = "dmic-codec";
-		#sound-dai-cells = <1>;
-		status = "okay";
-
-		port {
-			dmic0_endpoint: endpoint {
-				remote-endpoint = <&dfsdm_endpoint0>;
-			};
-		};
+		status = "disabled";
 	};
 
 	usb_phy_tuning: usb-phy-tuning {
@@ -169,33 +154,6 @@
 				<STM32_PINMUX('C', 5, ANALOG)>, /* ETH1_RXD1 */
 				<STM32_PINMUX('G', 13, ANALOG)>, /* ETH1_TXD0 */
 				<STM32_PINMUX('G', 14, ANALOG)>; /* ETH1_TXD1 */
-		};
-	};
-
-	dfsdm0_clkout_pins_a: dfsdm0-clkout-pins-0 {
-		pins {
-			pinmux = <STM32_PINMUX('E', 9, AF3)>; /* DFSDM_CKOUT */
-			bias-disable;
-			drive-push-pull;
-			slew-rate = <0>;
-		};
-	};
-
-	dfsdm0_clkout_sleep_pins_a: dfsdm0-clkout-sleep-pins-0 {
-		pins {
-			pinmux = <STM32_PINMUX('E', 9, ANALOG)>; /* DFSDM_CKOUT */
-		};
-	};
-
-	dfsdm0_data2_pins_a: dfsdm0-data2-pins-0 {
-		pins {
-			pinmux = <STM32_PINMUX('E', 7, AF3)>; /* DFSDM_DATA2 */
-		};
-	};
-
-	dfsdm0_data2_sleep_pins_a: dfsdm0-data2-sleep-pins-0 {
-		pins {
-			pinmux = <STM32_PINMUX('E', 7, ANALOG)>; /* DFSDM_DATA2 */
 		};
 	};
 
@@ -485,6 +443,11 @@
 			interrupt-names = "onkey-falling", "onkey-rising";
 			status = "okay";
 		};
+
+		watchdog {
+			compatible = "st,stpmic1-wdt";
+			status = "disabled";
+		};
 	};
 };
 
@@ -589,42 +552,6 @@
 	};
 };
 
-&dfsdm {
-	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&dfsdm0_clkout_pins_a
-		&dfsdm0_data2_pins_a>;
-	pinctrl-1 = <&dfsdm0_clkout_sleep_pins_a
-		&dfsdm0_data2_sleep_pins_a>;
-	spi-max-frequency = <2048000>;
-
-	clocks = <&rcc DFSDM_K>, <&rcc ADFSDM_K>;
-	clock-names = "dfsdm", "audio";
-	status = "okay";
-
-	dfsdm0: filter@0 {
-		compatible = "st,stm32-dfsdm-dmic";
-		st,adc-channels = <2>;
-		st,adc-channel-names = "dmic_u1";
-		st,adc-channel-types = "SPI_R";
-		st,adc-channel-clk-src = "CLKOUT";
-		st,filter-order = <3>;
-		status = "okay";
-
-		asoc_pdm0: dfsdm-dai {
-			compatible = "st,stm32h7-dfsdm-dai";
-			#sound-dai-cells = <0>;
-			io-channels = <&dfsdm0 0>;
-			status = "okay";
-
-			dfsdm0_port: port {
-				dfsdm_endpoint0: endpoint {
-					remote-endpoint = <&dmic0_endpoint>;
-				};
-			};
-		};
-	};
-};
-
 &rng1 {
 	status = "okay";
 };
@@ -660,7 +587,7 @@
 		status = "okay";
 	};
 	timer@0 {
-		status = "disabled";
+		status = "okay";
 	};
 };
 
