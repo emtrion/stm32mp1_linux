@@ -122,3 +122,11 @@
 	pinctrl-0 = <&rtc_out2_rmp_pins_a>;
 	pinctrl-names = "default";
 };
+
+/* enable for usb 1.1 low speed */
+&usbh_ohci {
+	phys = <&usbphyc_port0>;
+	phy-names = "usb";
+	status = "okay";
+};
+
