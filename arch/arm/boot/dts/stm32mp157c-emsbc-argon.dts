@@ -72,7 +72,6 @@
 	panel-dsi@0 {
 		compatible = "orisetech,otm8009a";
 		reg = <0>;
-		reset-gpios = <&gpioz 7 GPIO_ACTIVE_LOW>;
 		status = "okay";
 
 		port {
@@ -106,13 +105,14 @@
 		status = "okay";
 	};
 	touchscreen@38 {
-		compatible = "focaltech,ft6336";
+		compatible = "focaltech,ft6236";
 		reg = <0x38>;
 		interrupts = <2 2>;
 		interrupt-parent = <&gpiof>;
 		interrupt-controller;
 		touchscreen-size-x = <480>;
 		touchscreen-size-y = <800>;
+		reset-gpios = <&gpioz 7 GPIO_ACTIVE_LOW>;
 		status = "okay";
 	};
 };
