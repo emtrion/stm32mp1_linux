@@ -29,6 +29,10 @@
 	};
 };
 
+&usart3 {
+	status = "okay";
+};
+
 &sdmmc2 {
 	arm,primecell-periphid = <0x10153180>;
 	pinctrl-names = "default", "opendrain", "sleep";
