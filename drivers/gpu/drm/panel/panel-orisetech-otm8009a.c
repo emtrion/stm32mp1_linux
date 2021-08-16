@@ -69,9 +69,11 @@ struct otm8009a {
 	struct regulator *supply;
 	bool prepared;
 	bool enabled;
+	u32 rotation;
+	u8 address_mode;
 };
 
-static const struct drm_display_mode default_mode = {
+static struct drm_display_mode default_mode = {
 	.clock = 29700,
 	.hdisplay = 480,
 	.hsync_start = 480 + 98,
@@ -85,6 +87,22 @@ static const struct drm_display_mode default_mode = {
 	.flags = 0,
 	.width_mm = 52,
 	.height_mm = 86,
+};
+
+static struct drm_display_mode default_mode90_270 = {
+	.clock = 29700,
+	.hdisplay = 800,
+	.hsync_start = 800 + 98,
+	.hsync_end = 800 + 98 + 32,
+	.htotal = 800 + 98 + 32 + 98,
+	.vdisplay = 480,
+	.vsync_start = 480 + 15,
+	.vsync_end = 480 + 15 + 10,
+	.vtotal = 480 + 15 + 10 + 14,
+	.vrefresh = 50,
+	.flags = 0,
+	.width_mm = 86,
+	.height_mm = 52,
 };
 
 static inline struct otm8009a *panel_to_otm8009a(struct drm_panel *panel)
@@ -208,8 +226,34 @@ static int otm8009a_init_sequence(struct otm8009a *ctx)
 	mdelay(120);
 
 	/* Default portrait 480x800 rgb24 */
-	dcs_write_seq(ctx, MIPI_DCS_SET_ADDRESS_MODE, 0x00);
 
+	switch (ctx->address_mode & 0xe0) {
+		case 0x60:
+			dcs_write_seq(ctx, MIPI_DCS_SET_ADDRESS_MODE, 0x60);
+			break;
+		case 0xc0:
+			dcs_write_seq(ctx, MIPI_DCS_SET_ADDRESS_MODE, 0xc0);
+			break;
+		case 0xa0:	
+			dcs_write_seq(ctx, MIPI_DCS_SET_ADDRESS_MODE, 0xa0);
+			break;
+		case 0x20:
+			dcs_write_seq(ctx, MIPI_DCS_SET_ADDRESS_MODE, 0x20);
+			break;
+		case 0x40:
+			dcs_write_seq(ctx, MIPI_DCS_SET_ADDRESS_MODE, 0x40);
+			break;
+		case 0x80:
+			dcs_write_seq(ctx, MIPI_DCS_SET_ADDRESS_MODE, 0x80);
+			break;
+		case 0xe0:
+			dcs_write_seq(ctx, MIPI_DCS_SET_ADDRESS_MODE, 0xe0);
+			break;
+		default:
+			dcs_write_seq(ctx, MIPI_DCS_SET_ADDRESS_MODE, 0x00);
+			break;		
+	}
+	
 	ret = mipi_dsi_dcs_set_column_address(dsi, 0,
 					      default_mode.hdisplay - 1);
 	if (ret)
@@ -408,6 +452,40 @@ static const struct backlight_ops otm8009a_backlight_ops = {
 	.update_status = otm8009a_backlight_update_status,
 };
 
+static void handle_panel_rotation(struct otm8009a *ctx)
+{
+	int size;
+	struct device_node *np = ctx->dev->of_node;
+	const void *prop_value;
+	int rc;
+	u32 rotation, address_mode;
+
+	/* Try to read porperty rotation */
+	rc = of_property_read_u32(np, "rotation", &rotation);
+	if (rc) {
+		dev_err(ctx->dev, "failed to read property rotation");
+		return;
+	}
+
+	/* Try to read porperty address_mode */
+	rc = of_property_read_u32(np, "address_mode", &address_mode);
+	if (rc) {
+		dev_err(ctx->dev, "failed to read property address_mode");
+		return;
+	}
+
+	/* assign the property values to the driver structure */
+	ctx->rotation = rotation;
+	ctx->address_mode = address_mode;
+	
+	switch (ctx->rotation) {
+		case 90:
+		case 270:	
+			default_mode = default_mode90_270; 
+			break;
+	}
+}
+
 static int otm8009a_probe(struct mipi_dsi_device *dsi)
 {
 	struct device *dev = &dsi->dev;
@@ -417,7 +495,7 @@ static int otm8009a_probe(struct mipi_dsi_device *dsi)
 	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
 	if (!ctx)
 		return -ENOMEM;
-
+  
 	ctx->reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_LOW);
 	if (IS_ERR(ctx->reset_gpio)) {
 		dev_err(dev, "cannot get reset-gpio\n");
@@ -435,7 +513,9 @@ static int otm8009a_probe(struct mipi_dsi_device *dsi)
 	mipi_dsi_set_drvdata(dsi, ctx);
 
 	ctx->dev = dev;
-
+	
+	handle_panel_rotation(ctx);
+	
 	dsi->lanes = 2;
 	dsi->format = MIPI_DSI_FMT_RGB888;
 	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
