@@ -1040,7 +1040,10 @@ dtb-$(CONFIG_ARCH_STM32) += \
 	stm32mp157c-ev1-m4-examples.dtb \
 	stm32mp157f-ev1-a7-examples.dtb \
 	stm32mp157f-ev1-m4-examples.dtb \
-	stm32mp157c-emsbc-argon.dtb
+	stm32mp157c-emsbc-argon.dtb \
+	stm32mp157c-emsbc-argon_display90.dtb \
+	stm32mp157c-emsbc-argon_display180.dtb \
+	stm32mp157c-emsbc-argon_display270.dtb
 
 dtb-$(CONFIG_MACH_SUN4I) += \
 	sun4i-a10-a1000.dtb \
