@@ -108,6 +108,7 @@
 		interrupt-controller;
 		touchscreen-size-x = <480>;
 		touchscreen-size-y = <800>;
+		reset-gpios = <&gpioz 7 GPIO_ACTIVE_LOW>;
 		status = "okay";
 	};
 	touchscreen@38 {
