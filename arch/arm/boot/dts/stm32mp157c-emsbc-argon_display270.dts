@@ -16,3 +16,10 @@
 	};
 };
 
+&i2c1 {
+	touchscreen@38 {
+		touchscreen-inverted-y;
+		touchscreen-swapped-x-y;
+	};
+};
+
